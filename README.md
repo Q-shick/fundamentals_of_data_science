@@ -9,9 +9,9 @@ This repository is established for the graduate level course titled *Fundamental
 |1|Grim Words|Basic Statistics, Numpy, Pandas|
 |2|Movie Ratings|Correlation, Heatmap, Boxplot|
 |3|Olive Oil|Pairplot, Boxplot in R|
-|4|Prob/Stat Quiz|n/a|
-|5|Regression Model|Ridge, Lasso|
-|6|Midterm|n/a|
+|4|Prob/Stat Quiz|*n/a*|
+|5|Regression Model|OLS, Ridge, Lasso|
+|6|Midterm|*n/a*|
 |7|Rainfall Prediction|Machine Learning Models, Accuracy, AUC|
 |8|Dewpoint Prediction|Neural Network|
 |9|Dataset Selection|Project Proposal|

@@ -20,7 +20,9 @@ This repository is established for the graduate level course titled *Fundamental
 
 # Useful Resources
 
-The following links were used for lectures and/or carrying out the projects. They are classified into *Theory* and *Syntax*, respectively, for better lookup. Theory covers theoretical parts such as statistics and machine learning while systax usually explains code snippets in Python or R.
+The following links were used for lectures and/or carrying out the projects. They are classified into *Textbook*, *Theory*, and *Syntax* for better lookup. Textbook is free online books that this course partly covered or recommended to read. Theory covers theoretical parts such as statistics and machine learning while systax focuses on general code snippets in Python or R.
+
+### Textbook
 
 ### Theory
 

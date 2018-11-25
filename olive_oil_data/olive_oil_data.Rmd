@@ -1,0 +1,192 @@
+---
+title: "Cleaning and Exploring the Olive Oil Dataset"
+output: html_document
+---
+
+*By Kyoosik Kim*
+
+### Overview
+> The objective of this mini project is to get familiar with the R programming. The practice includes but not limited to loading and printing data, joining data frames, and plotting data. Since the goal is more focused on practicing programming, not analyzing the data, the code snippets can be used as examples, especially for *ggplot* syntax.
+
+------
+
+
+### Import Libraries and Set Printing Style
+```{r message=FALSE, warning=FALSE}
+# printing
+library(knitr)
+library(kableExtra)
+
+# manipulating data frames
+library(tidyverse)
+library(reshape2)
+
+# correlation
+library(corrplot)
+
+# plotting
+library(ggplot2)
+library(GGally)
+
+# plot grid
+library(grid)
+library(gridExtra)
+library(cowplot)
+```
+
+```{r}
+# set up printing style
+print_kable <- function(df) {
+  kable(df) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+}
+```
+
+### Task 1. Read CSV Files
+```{r message=FALSE, warning=FALSE}
+# Load the csv files
+olive_oil_chem_df <- read_csv('Data/olive_oil_chemical.csv')
+print_kable(olive_oil_chem_df[1:5, ])
+```
+
+```{r message=FALSE, warning=FALSE}
+olive_oil_sens_df <- read_csv('Data/olive_oil_sensory.csv')
+print_kable(olive_oil_sens_df[1:5, ])
+```
+
+------
+
+
+### Task 2. Join Data Frames
+```{r}
+olive_combined_df <- left_join(olive_oil_chem_df, olive_oil_sens_df, by = 'region')
+print_kable(olive_combined_df[1:5, ])
+```
+
+### Task 3. Summary of Dataset
+```{r}
+summary(olive_combined_df)
+```
+
+------
+
+
+### Task 4. Correlation
+```{r}
+olive_columns <- colnames(olive_combined_df)[-1] # drop region to get only numerical
+corr <- cor(olive_combined_df[, olive_columns])
+corrplot.mixed(corr, lower.col = "black", number.cex = .75, tl.pos = "lt")
+```
+
+------
+
+
+### Task 5. Boxplot
+```{r}
+olive_combined_df$group <- substr(olive_combined_df$region, 1, 1) # ex) G1, G2, ... -> G
+
+# melt for boxplot facet
+olive_boxplot1_df <- melt(data = olive_combined_df[-c(1:2, 4:6)], id = "group")
+olive_boxplot2_df <- melt(data = olive_combined_df[c(2, 4:6, 13)], id = "group")
+
+# type 's' boxplot
+ggplot(olive_boxplot1_df, aes(x = group, y = value)) +
+  geom_boxplot(aes(fill = group)) +
+  facet_wrap(~ variable, ncol = 4) + 
+  labs(x = "", y = "Value", fill = "") +
+  scale_y_continuous(breaks = seq(0, 100, 10)) +
+  scale_fill_discrete(labels = c("Greek", "Italian", "Spanish")) +
+  theme_bw()
+```
+
+#### The 7 of boxplots are variables that can be shown together ranged between 0 to 90. The values of the rest are so small as to be plotted separately as below.
+
+```{r}
+ggplot(olive_boxplot2_df, aes(x = group, y = value)) +
+  geom_boxplot(aes(fill = group)) +
+  facet_wrap(~ variable, ncol = 2) + 
+  labs(x = "", y = "Value", fill = "") +
+  scale_y_continuous(breaks = seq(0, 2.5, 0.5)) +
+  scale_fill_discrete(labels = c("Greek", "Italian", "Spanish")) +
+  theme_bw()
+```
+
+#### There are still 2 variables of which values are very small. They can be drawn with 'plot_grid' function of *cowplot* as followings.
+
+```{r}
+plot_grid(
+  ggplot(olive_combined_df, aes(x = group, y = c_K270)) + 
+    geom_boxplot(aes(fill = group)) + labs(x = "", fill = "") +
+    scale_fill_discrete(labels = c("Greek", "Italian", "Spanish")),
+  ggplot(olive_combined_df, aes(x = group, y = c_DK)) + 
+    geom_boxplot(aes(fill = group)) + labs(x = "", fill = "") +
+    scale_fill_discrete(labels = c("Greek", "Italian", "Spanish"))
+)
+```
+
+------
+
+
+### Task 6. Pairplot
+```{r message=FALSE}
+ggpairs(olive_combined_df[, olive_columns], 
+        lower = list(continuous = wrap("smooth", size = 0.2)),
+        upper = list(continuous = wrap("cor", size = 3))) +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        strip.text.x = element_text(size = 6),
+        strip.text.y = element_text(size = 6))
+
+```
+
+#### Some parameters are set to make the plot look better such as text size because reading texts in a complicated plot like this might be a bit challenging.
+
+------
+
+
+### Task 7. Histogram
+```{r}
+hist_plot <- function(col, color) {
+  p <- ggplot(olive_combined_df, aes(x = eval(parse(text = col)))) +
+    geom_histogram(bins = 10, color = "gray", fill = color) +
+    labs(title = col, x = "", y = "")
+    
+  return(p)
+}
+
+grid.arrange(hist_plot("c_K232", "lightgreen"), 
+             hist_plot("c_DK", "pink"), 
+             hist_plot("s_yellow", "lightyellow"),
+             hist_plot("s_glossy", "lightblue"),
+             ncol = 2, nrow = 2)
+```
+
+#### The 4 variables are chosen based on the result of the pairplot, the diagonal line of which is basically rough histograms for each variable.
+
+------
+
+
+### Task 8. Mean and Median
+```{r}
+Mean <- colMeans(olive_combined_df[, olive_columns])
+Median <- apply(olive_combined_df[, olive_columns], 2, median)
+
+stats_df <- rbind(Mean, Median)
+stats_df <- data.frame(t(stats_df))
+stats_df$Diff <- Mean - Median
+
+print_kable(stats_df[1:5, ])
+```
+
+#### Mean and median for each column can be done in many different ways. The function 'colMeans' is specifically for mean values, but 'apply' can always be used for the same result.
+
+------
+
+
+### Reference
+* [Tutorial for kable](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+* [Facet for ggplot](http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/)
+* [Introduction to cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html)
+* [Background of ggplot](http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements)
+* [Legend cookbook](http://www.cookbook-r.com/Graphs/Legends_(ggplot2)/)
+* [Manipulating ggpair](https://stackoverflow.com/questions/28427572/manipulating-axis-titles-in-ggpairs-ggally)

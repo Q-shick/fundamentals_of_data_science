@@ -1,0 +1,14 @@
+<Practicing R Programming> Kyoosik Kim
+
+This project is to practice basic R programming such as reading data, plot data, manipulating data frames. The following are the tasks conducted on "Olive Oil Dataset".
+
+Task1: Loading the CSV files
+Task2: Joining the data frames
+Task3: Summary of the dataset
+Task4: Corrplot
+Task5: Boxplot (by Greek, Italian, Spanish)
+Task6: Pairplot
+Task7: Histogram
+Task8: Mean and median
+
+At the end contains the links to the references I studied for the project.

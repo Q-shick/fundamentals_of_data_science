@@ -1,4 +1,0 @@
-Your Topic:
-
-Lasso. Also mention Ridge regression and how they are related (this might be
-at the beginning or end, depending on how you approach the comparison).
